@@ -1,0 +1,92 @@
+/* ── Hotspot markers ──────────────────────────── */
+
+.hotspot-marker {
+  position: relative;
+  cursor: pointer;
+}
+
+.hotspot-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  position: relative;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 8px 2px currentColor;
+}
+
+.hotspot-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  border: 1.5px solid currentColor;
+  animation: hotspot-ping 2s ease-out infinite;
+}
+
+.hotspot-label {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  color: #ccc;
+  background: rgba(10, 10, 35, 0.85);
+  padding: 2px 6px;
+  border-radius: 4px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.hotspot-marker:hover .hotspot-label {
+  opacity: 1;
+}
+
+/* Type-specific colors */
+.hotspot-conflict .hotspot-dot,
+.hotspot-conflict .hotspot-pulse {
+  color: #ff3333;
+  background: #ff3333;
+}
+.hotspot-conflict .hotspot-dot {
+  animation: hotspot-flicker 1.2s ease-in-out infinite;
+}
+
+.hotspot-weather .hotspot-dot,
+.hotspot-weather .hotspot-pulse {
+  color: #ff9933;
+  background: #ff9933;
+}
+
+.hotspot-economic .hotspot-dot,
+.hotspot-economic .hotspot-pulse {
+  color: #00d4ff;
+  background: #00d4ff;
+}
+
+.hotspot-pulse {
+  background: transparent !important;
+}
+
+@keyframes hotspot-ping {
+  0% {
+    width: 10px;
+    height: 10px;
+    opacity: 0.8;
+  }
+  100% {
+    width: 30px;
+    height: 30px;
+    opacity: 0;
+  }
+}
+
+@keyframes hotspot-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
