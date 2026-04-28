@@ -1,50 +1,7 @@
 import { create } from 'zustand';
 import { COUNTRIES } from './countries';
 
-/* ── Mock data generators ───────────────────────────── */
 
-function mockWeather(country) {
-  const tropical = ['Asia', 'Africa'].includes(country.region);
-  const conditions = ['Clear', 'Clouds', 'Rain', 'Drizzle', 'Mist'];
-  const condition = conditions[Math.floor(Math.random() * conditions.length)];
-  const base = tropical ? 30 : 16;
-  const temp = base + Math.floor(Math.random() * 10) - 3;
-  return {
-    temp,
-    feelsLike: temp - 2,
-    condition,
-    humidity: 40 + Math.floor(Math.random() * 40),
-    windSpeed: 2 + Math.floor(Math.random() * 8),
-  };
-}
-
-function mockNews(country) {
-  const headlines = [
-    `${country.name} announces major infrastructure investment`,
-    `Tech industry in ${country.name} sees record growth`,
-    `${country.name} commits to new renewable energy targets`,
-    `Cultural heritage festival draws crowds in ${country.capital}`,
-    `${country.name} strengthens regional trade agreements`,
-  ];
-  return headlines.map((title, i) => ({
-    title,
-    source: ['Reuters', 'Bloomberg', 'AP News', 'BBC', 'The Guardian'][i],
-    url: '#',
-    publishedAt: new Date(Date.now() - i * 3600000).toISOString(),
-  }));
-}
-
-function mockStats(country) {
-  const pop = [14e8, 33e7, 12e7, 8e7, 6e7, 2e7][Math.floor(Math.random() * 6)];
-  return {
-    population: pop,
-    gdp: pop * (3000 + Math.floor(Math.random() * 50000)),
-    gdpPerCapita: 3000 + Math.floor(Math.random() * 50000),
-    lifeExpectancy: 60 + Math.round(Math.random() * 20 * 10) / 10,
-    area: 50000 + Math.floor(Math.random() * 9e6),
-    gini: 25 + Math.round(Math.random() * 20 * 10) / 10,
-  };
-}
 
 /* ── Store ──────────────────────────────────────────── */
 
@@ -65,20 +22,34 @@ const useStore = create((set, get) => ({
 
   fetchCountryData: async (code) => {
     set({ loading: true, error: null });
-    // Small delay so the skeleton loader is visible
-    await new Promise((r) => setTimeout(r, 300));
 
-    const country = COUNTRIES.find((c) => c.code === code) || { code, name: code, capital: 'Unknown', region: 'Unknown', flag: '' };
+    try {
+      const res = await fetch(`/api/country/${code}`);
+      if (!res.ok) {
+        throw new Error('Failed to fetch country data');
+      }
+      const data = await res.json();
 
-    set({
-      countryData: {
-        country,
-        weather: mockWeather(country),
-        news: mockNews(country),
-        stats: mockStats(country),
-      },
-      loading: false,
-    });
+      // Ensure we have a flag, either from our local COUNTRIES data or by generating it
+      const localCountry = COUNTRIES.find((c) => c.code === code);
+      if (localCountry && !data.country.flag) {
+        data.country.flag = localCountry.flag;
+      } else if (!data.country.flag) {
+        // Fallback flag generation
+        const codePoints = code.toUpperCase().split('').map(c => 0x1f1e6 + c.charCodeAt(0) - 65);
+        data.country.flag = String.fromCodePoint(...codePoints);
+      }
+
+      set({
+        countryData: data,
+        loading: false,
+      });
+    } catch (err) {
+      set({
+        error: err.message,
+        loading: false,
+      });
+    }
   },
 
   // Hover state (for tooltip)

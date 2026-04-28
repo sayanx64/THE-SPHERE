@@ -25,7 +25,10 @@ export async function fetchNews(countryCode) {
   const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(countryName)}&sortBy=publishedAt&pageSize=5&apiKey=${key}`;
 
   try {
-    const { data } = await axios.get(url, { timeout: 5000 });
+    const { data } = await axios.get(url, { 
+      timeout: 5000,
+      headers: { 'User-Agent': 'TheSphere/1.0' }
+    });
     if (!data.articles || data.articles.length === 0) {
       return generateMockNews(countryCode);
     }
@@ -55,7 +58,7 @@ function generateMockNews(code) {
   return topics.map((t, i) => ({
     title: t.title,
     source: t.source,
-    url: '#',
+    url: `https://news.google.com/search?q=${encodeURIComponent(t.title)}`,
     publishedAt: new Date(Date.now() - i * 3600000).toISOString(),
     description: `Latest developments from ${name}.`,
   }));

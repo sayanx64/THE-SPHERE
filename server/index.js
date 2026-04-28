@@ -1,4 +1,9 @@
-import 'dotenv/config';
+import { config as dotenvConfig } from 'dotenv';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+dotenvConfig({ path: resolve(__dirname, '..', '.env') });
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -6,6 +11,8 @@ import { rateLimit } from 'express-rate-limit';
 import { createLogger } from './logger.js';
 import countryRoutes from './routes/country.js';
 import searchRoutes from './routes/search.js';
+import shipRoutes from './routes/ships.js';
+import { startAISClient } from './ais/aisClient.js';
 
 const logger = createLogger();
 const app = express();
@@ -39,6 +46,7 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/country', countryRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/ships', shipRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {
@@ -49,4 +57,7 @@ app.use((err, req, res, next) => {
 // Start
 app.listen(PORT, () => {
   logger.info(`🌐 THE SPHERE API running on http://localhost:${PORT}`);
+
+  // Start AIS WebSocket client
+  startAISClient();
 });

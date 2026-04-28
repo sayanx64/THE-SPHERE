@@ -65,8 +65,10 @@ function ErrorState({ error }) {
 function CountryHeader({ country }) {
   return (
     <div className="country-header">
-      <div className="country-flag">{country.flag}</div>
-      <h2 className="country-name">{country.name}</h2>
+      <div className="country-title-row">
+        <div className="country-flag-badge">{country.flag}</div>
+        <h2 className="country-name">{country.name}</h2>
+      </div>
       <div className="country-meta">
         <span className="country-meta-item">
           <span className="country-meta-icon">📍</span>
