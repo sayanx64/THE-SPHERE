@@ -309,342 +309,101 @@ html, body, #root {
 }
 
 /* ============================================================
-   Data Panel
+   Spatial UI (Floating Overlays)
    ============================================================ */
 
-.data-panel {
-  position: fixed;
+.spatial-ui-container {
+  position: absolute;
   top: 0;
-  right: 0;
-  width: 420px;
-  height: 100%;
+  left: 0;
+  pointer-events: none;
   z-index: var(--z-panel);
-  background: var(--gradient-panel);
-  border-left: 1px solid var(--color-border);
-  backdrop-filter: blur(30px);
-  overflow-y: auto;
-  overflow-x: hidden;
-  transform: translateX(100%);
-  transition: transform var(--transition-slow);
-  padding-bottom: var(--space-xl);
 }
 
-.data-panel.open {
-  transform: translateX(0);
-}
-
-.panel-close-btn {
-  position: sticky;
-  top: var(--space-sm);
-  float: right;
-  margin: var(--space-sm) var(--space-sm) 0 0;
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-round);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(15, 15, 50, 0.85);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-base);
-  cursor: pointer;
+.spatial-anchor {
+  position: absolute;
   display: flex;
-  align-items: center;
   justify-content: center;
-  transition: all var(--transition-fast);
-  z-index: 20;
-  backdrop-filter: blur(12px);
-}
-
-.panel-close-btn:hover {
-  border-color: var(--color-accent-danger);
-  color: var(--color-accent-danger);
-  background: rgba(255, 82, 82, 0.15);
-  box-shadow: 0 0 12px rgba(255, 82, 82, 0.3);
-}
-
-/* ============================================================
-   Country Header
-   ============================================================ */
-
-.country-header {
-  padding: var(--space-xl);
-  padding-top: var(--space-3xl);
-  background: var(--gradient-card);
-  border-bottom: 1px solid var(--color-border);
-  position: relative;
-}
-
-.country-title-row {
-  display: flex;
   align-items: center;
-  gap: var(--space-md);
-  margin-bottom: var(--space-xs);
+  transition: opacity 0.3s ease;
 }
 
-.country-flag-badge {
-  font-size: 2.2rem;
-  line-height: 1;
-  background: rgba(255, 255, 255, 0.04);
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), var(--shadow-sm);
+.spatial-anchor.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
-.country-name {
-  font-size: var(--font-size-2xl);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  background: linear-gradient(180deg, #ffffff 0%, #e8e8f0 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.country-meta {
-  display: flex;
-  gap: var(--space-md);
-  margin-top: var(--space-xs);
-  flex-wrap: wrap;
-}
-
-.country-meta-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xxs);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-
-.country-meta-icon {
-  font-size: var(--font-size-base);
-}
-
-/* ============================================================
-   Panel Sections
-   ============================================================ */
-
-.panel-section {
-  padding: var(--space-lg) var(--space-xl);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.panel-section:last-child {
-  border-bottom: none;
-}
-
-.section-title {
-  font-size: var(--font-size-xs);
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--color-accent-primary);
-  margin-bottom: var(--space-md);
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-/* ============================================================
-   Weather Card
-   ============================================================ */
-
-.weather-card {
-  background: var(--gradient-card);
-  border: 1px solid var(--color-border);
+.spatial-panel {
+  position: absolute;
+  pointer-events: auto;
+  background: var(--color-bg-panel);
+  border: 1px solid rgba(108, 99, 255, 0.2);
   border-radius: var(--radius-lg);
-  padding: var(--space-lg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  padding: var(--space-md);
+  color: var(--color-text-primary);
+  opacity: 0;
+  animation: spatialFadeIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes spatialFadeIn {
+  from { opacity: 0; transform: scale(0.9) translate(0, 10px); }
+  to { opacity: 1; transform: scale(1) translate(0, 0); }
+}
+
+/* Fan out positions */
+.spatial-main {
+  top: -160px;
+  left: -220px;
+  width: 250px;
+  animation-delay: 0ms;
+}
+
+.spatial-stats {
+  top: -130px;
+  left: 50px;
+  width: 220px;
+  animation-delay: 50ms;
+}
+
+.spatial-news {
+  top: 30px;
+  left: -280px;
+  width: 280px;
+  animation-delay: 100ms;
+}
+
+.spatial-weather {
+  top: 60px;
+  left: 40px;
+  width: 240px;
+  animation-delay: 150ms;
+}
+
+/* Inner elements */
+.spatial-header {
   display: flex;
   align-items: center;
-  gap: var(--space-lg);
-  transition: border-color var(--transition-base);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
-}
-
-.weather-card:hover {
-  border-color: var(--color-border-hover);
-}
-
-.weather-icon {
-  font-size: 3rem;
-  line-height: 1;
-}
-
-.weather-temp {
-  font-size: var(--font-size-3xl);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1;
-}
-
-.weather-condition {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  margin-top: var(--space-xxs);
-}
-
-.weather-details {
-  display: flex;
-  gap: var(--space-md);
-  margin-left: auto;
-  flex-direction: column;
-}
-
-.weather-detail-item {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  font-family: var(--font-mono);
-}
-
-.weather-detail-value {
-  color: var(--color-text-secondary);
-  font-weight: 500;
-}
-
-/* ============================================================
-   Stats Grid
-   ============================================================ */
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: var(--space-xs);
 }
 
-.stat-card {
-  background: var(--gradient-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  transition: all var(--transition-base);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
-}
-
-.stat-card:hover {
-  border-color: var(--color-border-hover);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-glow);
-}
-
-.stat-label {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: var(--space-xxs);
-}
-
-.stat-value {
-  font-size: var(--font-size-xl);
+.spatial-title {
+  font-size: var(--font-size-md);
   font-weight: 700;
   color: var(--color-text-primary);
-  font-family: var(--font-mono);
-  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
-.stat-unit {
+.spatial-subtitle {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
-  margin-left: var(--space-xxs);
-  font-weight: 400;
-}
-
-/* ============================================================
-   News Feed
-   ============================================================ */
-
-.news-feed {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-
-.news-card {
-  background: var(--gradient-card);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  cursor: pointer;
-  transition: all var(--transition-base);
-  text-decoration: none;
-  color: inherit;
-  display: block;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
-}
-
-.news-card:hover {
-  border-color: var(--color-border-hover);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-glow);
-}
-
-.news-card-title {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  line-height: 1.4;
-  margin-bottom: var(--space-xs);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.news-card-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-}
-
-.news-card-source {
-  color: var(--color-accent-secondary);
-  font-weight: 500;
-}
-
-.news-card-date {
-  font-family: var(--font-mono);
-}
-
-/* ============================================================
-   Loading / Skeleton
-   ============================================================ */
-
-.skeleton {
-  background: var(--color-bg-tertiary);
-  border-radius: var(--radius-sm);
-  position: relative;
-  overflow: hidden;
-}
-
-.skeleton::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--gradient-shimmer);
-  animation: shimmer 1.5s ease-in-out infinite;
-}
-
-.skeleton-text {
-  height: 14px;
-  margin-bottom: var(--space-xs);
-}
-
-.skeleton-text.short {
-  width: 60%;
-}
-
-.skeleton-text.medium {
-  width: 80%;
-}
-
-.skeleton-block {
-  height: 80px;
-  margin-bottom: var(--space-sm);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 /* ============================================================

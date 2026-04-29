@@ -2,12 +2,12 @@ import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react'
 import * as THREE from 'three';
 import Globe from 'react-globe.gl';
 import { feature } from 'topojson-client';
-import { COUNTRIES } from '../data/countries';
 import CAPITALS from '../data/capitals';
 import CITIES from '../data/cities.json';
 import HOTSPOTS from '../data/hotspots';
 import useStore from '../data/store';
 import useShipStore from '../data/shipStore';
+import SpatialUI from './SpatialUI';
 import './hotspots.css';
 
 /* ── Country name normalization ──────────────────── */
@@ -45,14 +45,14 @@ const COUNTRY_NAME_MAP = {
 const normalizeName = (name) => COUNTRY_NAME_MAP[name] || name;
 
 /**
- * Find a COUNTRIES entry matching a GeoJSON feature name.
- * Tries: exact (normalized) → case-insensitive partial.
+ * Find a country entry matching a GeoJSON feature name.
+ * Uses the provided countries list (dynamic from store).
  */
-function matchCountry(geoName) {
+function matchCountryInList(geoName, countriesList) {
   if (!geoName) return null;
   const normalized = normalizeName(geoName).toLowerCase();
 
-  return COUNTRIES.find((c) => {
+  return countriesList.find((c) => {
     const cn = c.name.toLowerCase();
     return cn === normalized || normalized.includes(cn) || cn.includes(normalized);
   });
@@ -82,6 +82,13 @@ export default function GlobeScene() {
   const clearHoveredStore = useStore((s) => s.clearHovered);
   const selectedCountry = useStore((s) => s.selectedCountry);
   const clearSelection = useStore((s) => s.clearSelection);
+  const countries = useStore((s) => s.countries);
+
+  // Matching helper using dynamic countries list
+  const matchCountry = useCallback(
+    (geoName) => matchCountryInList(geoName, countries),
+    [countries]
+  );
 
   // Ship tracking
   const shipsArray = useShipStore((s) => s.shipsArray);
@@ -270,19 +277,19 @@ export default function GlobeScene() {
       }
       return;
     }
-    const country = COUNTRIES.find((c) => c.code === point.code);
+    const country = countries.find((c) => c.code === point.code);
     if (country) {
       // Close ship panel first, then open country panel
       clearShipSelection();
       selectCountry(country);
       fetchCountryData(country.code);
     }
-  }, [selectCountry, clearSelection, fetchCountryData, selectShip, clearShipSelection]);
+  }, [selectCountry, clearSelection, fetchCountryData, selectShip, clearShipSelection, countries]);
 
   const handlePointHover = useCallback((point) => {
     if (point) {
       if (!point.mmsi) {
-        const country = COUNTRIES.find((c) => c.code === point.code);
+        const country = countries.find((c) => c.code === point.code);
         if (country) setHoveredStore(country, window.innerWidth / 2, 80);
       }
       document.body.style.cursor = 'pointer';
@@ -290,7 +297,7 @@ export default function GlobeScene() {
       clearHoveredStore();
       document.body.style.cursor = 'default';
     }
-  }, [setHoveredStore, clearHoveredStore]);
+  }, [setHoveredStore, clearHoveredStore, countries]);
 
   // Capital city dots + major cities merged into one points layer
   const allCityPoints = useMemo(() => {
@@ -365,6 +372,7 @@ export default function GlobeScene() {
   }, [trackData]);
 
   return (
+    <>
     <Globe
       ref={globeRef}
       globeImageUrl="/textures/earth-blue-marble.jpg"
@@ -398,7 +406,7 @@ export default function GlobeScene() {
             </div>
             <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px">
               <div style="font-size:9px;color:#00d4ff;text-transform:uppercase;letter-spacing:0.5px;font-weight:600">Population</div>
-              <div style="font-size:12px;color:#e8e8f0;font-weight:500">${country.pop ? country.pop + 'M' : '—'}</div>
+              <div style="font-size:12px;color:#e8e8f0;font-weight:500">${country.population ? (country.population >= 1e6 ? (country.population / 1e6).toFixed(1) + 'M' : country.population.toLocaleString()) : '—'}</div>
             </div>
             <div style="background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:6px;grid-column:1 / -1">
               <div style="font-size:9px;color:#00e676;text-transform:uppercase;letter-spacing:0.5px;font-weight:600">GDP (Nominal)</div>
@@ -505,5 +513,7 @@ export default function GlobeScene() {
       width={dimensions.width}
       height={dimensions.height}
     />
+    <SpatialUI globeRef={globeRef} />
+    </>
   );
 }
