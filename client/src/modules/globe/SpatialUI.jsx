@@ -77,7 +77,7 @@ export default function SpatialUI({ globeRef }) {
         top: 0,
         left: 0,
         pointerEvents: 'none',
-        zIndex: 100,
+        zIndex: 999999,
         transition: 'opacity 0.3s ease',
         opacity: isVisible ? 1 : 0,
       }}
@@ -96,19 +96,19 @@ export default function SpatialUI({ globeRef }) {
       {/* Main Country Card (Top Left) */}
       <div className="spatial-panel spatial-main">
         <div className="spatial-header">
-          <span style={{ fontSize: '1.5rem' }}>{selectedCountry.flag}</span>
-          <div>
-            <div className="spatial-title">{selectedCountry.name}</div>
+          <span style={{ fontSize: '1.4rem', flexShrink: 0 }}>{selectedCountry.flag}</span>
+          <div style={{ minWidth: 0 }}>
+            <div className="spatial-title" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedCountry.name}</div>
             <div className="spatial-subtitle">{selectedCountry.region}</div>
           </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.8rem' }}>
-          <div>
-            <div style={{ color: '#00d4ff', fontSize: '0.65rem', textTransform: 'uppercase' }}>Capital</div>
-            <div>{selectedCountry.capital}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', fontSize: '0.78rem' }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ color: '#00d4ff', fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '1px' }}>Capital</div>
+            <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedCountry.capital}</div>
           </div>
-          <div>
-            <div style={{ color: '#00e676', fontSize: '0.65rem', textTransform: 'uppercase' }}>Pop</div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ color: '#00e676', fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '1px' }}>Population</div>
             <div>{formatNumber(selectedCountry.population)}</div>
           </div>
         </div>

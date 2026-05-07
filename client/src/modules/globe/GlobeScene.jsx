@@ -98,6 +98,18 @@ export default function GlobeScene() {
   const connectToShipStream = useShipStore((s) => s.connectToShipStream);
   const trackData = useShipStore((s) => s.trackData);
 
+  // Ref to avoid stale closures in htmlElement DOM callbacks
+  const shipClickRef = useRef(null);
+  shipClickRef.current = (ship) => {
+    clearSelection();
+    useShipStore.getState().selectShip(ship);
+    const globe = globeRef.current;
+    if (globe) {
+      globe.controls().autoRotate = false;
+      globe.pointOfView({ lat: ship.lat, lng: ship.lng, altitude: 1.5 }, 1200);
+    }
+  };
+
   // Connect to ship SSE stream on mount
   useEffect(() => {
     connectToShipStream();
@@ -459,14 +471,15 @@ export default function GlobeScene() {
             </div>
           `;
         } else if (d.isShip) {
-          // Native DOM click handler ensures perfect clickability
+          // Use ref to avoid stale closure — always calls latest handler
           el.onclick = (e) => {
             e.stopPropagation();
-            handlePointClick(d);
+            if (shipClickRef.current) shipClickRef.current(d);
           };
           
           el.style.cursor = 'pointer';
-          el.style.pointerEvents = 'auto'; 
+          el.style.pointerEvents = 'auto';
+          el.style.zIndex = '0';
           
           const getShipColor = (cat) => {
             switch (cat) {

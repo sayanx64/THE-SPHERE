@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import GlobeScene from './modules/globe/GlobeScene';
 import ShipPanel from './modules/panels/ShipPanel';
 import SearchBar from './components/SearchBar';
@@ -18,6 +18,8 @@ export default function App() {
   const countries = useStore((s) => s.countries);
   const panelOpen = shipPanelOpen || !!selectedCountry;
 
+  const [appStarted, setAppStarted] = useState(false);
+
   // Load all countries from REST Countries API on mount
   useEffect(() => {
     loadCountries();
@@ -26,7 +28,7 @@ export default function App() {
   return (
     <div className="app-container">
       {/* Loading Screen */}
-      <LoadingScreen />
+      <LoadingScreen onStart={() => setAppStarted(true)} appStarted={appStarted} />
 
       {/* Header */}
       <header className="header">
@@ -69,7 +71,7 @@ export default function App() {
         <div className="info-bar-dot" />
         <span>Click any point on the globe to explore</span>
         <span>·</span>
-        <span>{countries.length} countries</span>
+        <span>197 countries</span>
         {connected && (
           <>
             <span>·</span>

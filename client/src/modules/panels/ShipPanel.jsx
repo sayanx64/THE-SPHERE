@@ -13,6 +13,18 @@ function getShipEmoji(category) {
   }
 }
 
+function getShipColor(category) {
+  switch (category) {
+    case 'Cargo': return '#ff1744';
+    case 'Tanker': return '#ff9100';
+    case 'Passenger': return '#00e676';
+    case 'Fishing': return '#ffea00';
+    case 'High-Speed': return '#d500f9';
+    case 'Special': return '#00b0ff';
+    default: return '#00e5ff';
+  }
+}
+
 function formatSpeed(knots) {
   if (!knots && knots !== 0) return '—';
   return `${knots.toFixed(1)} kn`;
@@ -23,204 +35,11 @@ function formatHeading(deg) {
   return `${Math.round(deg)}°`;
 }
 
-function ShipHeader({ ship }) {
+function StatItem({ label, value, accent }) {
   return (
-    <div className="country-header">
-      <div className="country-title-row">
-        <div className="country-flag-badge" style={{ fontSize: '1.8rem' }}>
-          {getShipEmoji(ship.shipCategory)}
-        </div>
-        <h2 className="country-name">{ship.name || 'Unknown Vessel'}</h2>
-      </div>
-      <div className="country-meta">
-        <span className="country-meta-item">
-          <span className="country-meta-icon">🏷️</span>
-          {ship.shipCategory || 'Unknown'}
-        </span>
-        <span className="country-meta-item" style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--font-size-xs)', color: 'var(--color-accent-secondary)' }}>
-          MMSI {ship.mmsi}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-function NavigationCard({ ship }) {
-  return (
-    <div className="panel-section">
-      <div className="section-title">🧭 Navigation</div>
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-label">Speed</div>
-          <div className="stat-value">{formatSpeed(ship.speed)}</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">Heading</div>
-          <div className="stat-value">{formatHeading(ship.heading)}</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">Course</div>
-          <div className="stat-value">{formatHeading(ship.cog)}</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">Status</div>
-          <div className="stat-value" style={{ fontSize: 'var(--font-size-sm)' }}>{ship.navStatus || '—'}</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function VoyageCard({ ship, details }) {
-  if (!ship.destination && !ship.callSign && !ship.imo && !details) return null;
-  return (
-    <div className="panel-section">
-      <div className="section-title">🗺️ Voyage</div>
-      <div className="stats-grid">
-        {(details?.next_port || ship.destination) && (
-          <div className="stat-card" style={{ gridColumn: '1 / -1' }}>
-            <div className="stat-label">Destination / Next Port</div>
-            <div className="stat-value" style={{ fontSize: 'var(--font-size-base)', color: '#00e5ff' }}>
-              {details?.next_port || ship.destination}
-              {details?.next_port_country ? ` (${details.next_port_country})` : ''}
-            </div>
-          </div>
-        )}
-        {details?.last_port && (
-          <div className="stat-card" style={{ gridColumn: '1 / -1' }}>
-            <div className="stat-label">Last Port</div>
-            <div className="stat-value" style={{ fontSize: 'var(--font-size-sm)' }}>
-              {details.last_port} {details.last_port_country ? `(${details.last_port_country})` : ''}
-            </div>
-          </div>
-        )}
-        {ship.callSign && (
-          <div className="stat-card">
-            <div className="stat-label">Call Sign</div>
-            <div className="stat-value">{ship.callSign}</div>
-          </div>
-        )}
-        {ship.imo && (
-          <div className="stat-card">
-            <div className="stat-label">IMO</div>
-            <div className="stat-value">{ship.imo}</div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function SpecsCard({ details }) {
-  if (!details || (!details.built && !details.gt && !details.dwt)) return null;
-  return (
-    <div className="panel-section">
-      <div className="section-title">🏗️ Specifications</div>
-      <div className="stats-grid">
-        {details.built && (
-          <div className="stat-card">
-            <div className="stat-label">Built</div>
-            <div className="stat-value">{details.built}</div>
-          </div>
-        )}
-        {details.gt && (
-          <div className="stat-card">
-            <div className="stat-label">Gross Tonnage</div>
-            <div className="stat-value">{details.gt.toLocaleString()}</div>
-          </div>
-        )}
-        {details.dwt && (
-          <div className="stat-card">
-            <div className="stat-label">Deadweight</div>
-            <div className="stat-value">{details.dwt.toLocaleString()}t</div>
-          </div>
-        )}
-        {details.draught && (
-          <div className="stat-card">
-            <div className="stat-label">Draught</div>
-            <div className="stat-value">{details.draught}m</div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function WeatherCard({ details }) {
-  if (!details || details.temperature == null) return null;
-  return (
-    <div className="panel-section">
-      <div className="section-title">🌤️ Local Marine Weather</div>
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-label">Temp</div>
-          <div className="stat-value">{details.temperature}°C</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">Wind</div>
-          <div className="stat-value">{details.wind_knots}kn {details.wind_direction}</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">Pressure</div>
-          <div className="stat-value" style={{ fontSize: 'var(--font-size-sm)' }}>{details.pressure} hPa</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">Humidity</div>
-          <div className="stat-value">{details.humidity}%</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function PositionCard({ ship }) {
-  return (
-    <div className="panel-section">
-      <div className="section-title">📍 Position</div>
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-label">Latitude</div>
-          <div className="stat-value" style={{ fontSize: 'var(--font-size-base)' }}>{ship.lat?.toFixed(4)}°</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-label">Longitude</div>
-          <div className="stat-value" style={{ fontSize: 'var(--font-size-base)' }}>{ship.lng?.toFixed(4)}°</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function TrackCard({ trackData, trackLoading }) {
-  return (
-    <div className="panel-section">
-      <div className="section-title">🛤️ Route History (7 days)</div>
-      {trackLoading ? (
-        <div className="stat-card" style={{ textAlign: 'center', padding: 'var(--space-md)' }}>
-          <div className="stat-value" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-accent-secondary)' }}>
-            Loading track...
-          </div>
-        </div>
-      ) : trackData.length > 0 ? (
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-label">Track Points</div>
-            <div className="stat-value">{trackData.length}</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-label">Trail Visible</div>
-            <div className="stat-value" style={{ color: '#00e5ff', fontSize: 'var(--font-size-sm)' }}>
-              ✓ On Globe
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="stat-card" style={{ textAlign: 'center', padding: 'var(--space-md)' }}>
-          <div className="stat-value" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>
-            No track data available
-          </div>
-        </div>
-      )}
+    <div className="ship-modal-stat">
+      <div className="ship-modal-stat-label">{label}</div>
+      <div className="ship-modal-stat-value" style={accent ? { color: accent } : undefined}>{value}</div>
     </div>
   );
 }
@@ -233,23 +52,119 @@ export default function ShipPanel() {
   const trackLoading = useShipStore((s) => s.trackLoading);
   const extendedDetails = useShipStore((s) => s.extendedDetails);
 
-  return (
-    <div className={`data-panel ${shipPanelOpen ? 'open' : ''}`} id="ship-panel">
-      <button className="panel-close-btn" onClick={clearShipSelection} aria-label="Close ship panel">
-        ✕
-      </button>
+  if (!shipPanelOpen || !selectedShip) return null;
 
-      {selectedShip && (
-        <>
-          <ShipHeader ship={selectedShip} />
-          <NavigationCard ship={selectedShip} />
-          <VoyageCard ship={selectedShip} details={extendedDetails} />
-          <SpecsCard details={extendedDetails} />
-          <WeatherCard details={extendedDetails} />
-          <PositionCard ship={selectedShip} />
-          <TrackCard trackData={trackData} trackLoading={trackLoading} />
-        </>
-      )}
+  const ship = selectedShip;
+  const color = getShipColor(ship.shipCategory);
+
+  return (
+    <div className="ship-modal-backdrop" onClick={clearShipSelection}>
+      <div className="ship-modal" onClick={(e) => e.stopPropagation()}>
+        {/* Close */}
+        <button className="ship-modal-close" onClick={clearShipSelection}>✕</button>
+
+        {/* Header */}
+        <div className="ship-modal-header">
+          <div className="ship-modal-icon" style={{ color }}>
+            {getShipEmoji(ship.shipCategory)}
+          </div>
+          <div className="ship-modal-title-wrap">
+            <h2 className="ship-modal-name">{ship.name || 'Unknown Vessel'}</h2>
+            <div className="ship-modal-meta">
+              <span className="ship-modal-tag" style={{ borderColor: color, color }}>{ship.shipCategory || 'Vessel'}</span>
+              <span className="ship-modal-mmsi">MMSI {ship.mmsi}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Body — 2-column grid */}
+        <div className="ship-modal-body">
+
+          {/* Navigation */}
+          <div className="ship-modal-section">
+            <div className="ship-modal-section-title">🧭 Navigation</div>
+            <div className="ship-modal-stats-row">
+              <StatItem label="Speed" value={formatSpeed(ship.speed)} />
+              <StatItem label="Heading" value={formatHeading(ship.heading)} />
+              <StatItem label="Course" value={formatHeading(ship.cog)} />
+              <StatItem label="Status" value={ship.navStatus || '—'} />
+            </div>
+          </div>
+
+          {/* Position */}
+          <div className="ship-modal-section">
+            <div className="ship-modal-section-title">📍 Position</div>
+            <div className="ship-modal-stats-row">
+              <StatItem label="Latitude" value={`${ship.lat?.toFixed(4)}°`} />
+              <StatItem label="Longitude" value={`${ship.lng?.toFixed(4)}°`} />
+            </div>
+          </div>
+
+          {/* Voyage */}
+          {(ship.destination || extendedDetails?.next_port || extendedDetails?.last_port) && (
+            <div className="ship-modal-section ship-modal-section--wide">
+              <div className="ship-modal-section-title">🗺️ Voyage</div>
+              <div className="ship-modal-stats-row">
+                {(extendedDetails?.next_port || ship.destination) && (
+                  <StatItem
+                    label="Destination"
+                    value={`${extendedDetails?.next_port || ship.destination}${extendedDetails?.next_port_country ? ` (${extendedDetails.next_port_country})` : ''}`}
+                    accent="#00e5ff"
+                  />
+                )}
+                {extendedDetails?.last_port && (
+                  <StatItem label="Last Port" value={`${extendedDetails.last_port}${extendedDetails.last_port_country ? ` (${extendedDetails.last_port_country})` : ''}`} />
+                )}
+                {ship.callSign && <StatItem label="Call Sign" value={ship.callSign} />}
+                {ship.imo && <StatItem label="IMO" value={ship.imo} />}
+              </div>
+            </div>
+          )}
+
+          {/* Marine Weather */}
+          {extendedDetails?.temperature != null && (
+            <div className="ship-modal-section">
+              <div className="ship-modal-section-title">🌤️ Marine Weather</div>
+              <div className="ship-modal-stats-row">
+                <StatItem label="Temp" value={`${extendedDetails.temperature}°C`} accent="#00d4ff" />
+                <StatItem label="Wind" value={`${extendedDetails.wind_knots}kn ${extendedDetails.wind_direction}`} />
+                <StatItem label="Pressure" value={`${extendedDetails.pressure} hPa`} />
+                <StatItem label="Humidity" value={`${extendedDetails.humidity}%`} />
+              </div>
+            </div>
+          )}
+
+          {/* Specs */}
+          {extendedDetails && (extendedDetails.built || extendedDetails.gt || extendedDetails.dwt) && (
+            <div className="ship-modal-section">
+              <div className="ship-modal-section-title">🏗️ Specifications</div>
+              <div className="ship-modal-stats-row">
+                {extendedDetails.built && <StatItem label="Built" value={extendedDetails.built} />}
+                {extendedDetails.gt && <StatItem label="Gross Tonnage" value={extendedDetails.gt.toLocaleString()} />}
+                {extendedDetails.dwt && <StatItem label="Deadweight" value={`${extendedDetails.dwt.toLocaleString()}t`} />}
+                {extendedDetails.draught && <StatItem label="Draught" value={`${extendedDetails.draught}m`} />}
+              </div>
+            </div>
+          )}
+
+          {/* Track */}
+          <div className="ship-modal-section">
+            <div className="ship-modal-section-title">🛤️ Route History</div>
+            <div className="ship-modal-stats-row">
+              {trackLoading ? (
+                <StatItem label="Status" value="Loading..." accent="#00d4ff" />
+              ) : trackData.length > 0 ? (
+                <>
+                  <StatItem label="Track Points" value={trackData.length} />
+                  <StatItem label="Trail" value="✓ Visible" accent="#00e5ff" />
+                </>
+              ) : (
+                <StatItem label="Status" value="No track data" />
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
